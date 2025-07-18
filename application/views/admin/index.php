@@ -231,7 +231,8 @@
                             <!-- Submit button -->
                             <div class="row" id="submit_btn" style="display: none;">
                                 <div class="col-xs-12">
-                                    <button type="submit" id="btn_submit_checkin" class="btn btn-block bg-green btn-block" onclick="return handleSubmitCheckIn(this)">CHECK IN - SUBMIT</button>
+                                    <!-- <button type="submit" id="btn_submit_checkin" class="btn btn-block bg-green btn-block" onclick="return handleSubmitCheckIn(this)">CHECK IN - SUBMIT</button> -->
+                                     <button type="button" id="btn_submit_checkin" class="btn btn-block bg-green btn-block">CHECK IN - SUBMIT</button>
                                 </div>
                             </div>
 
@@ -274,7 +275,7 @@
                         <br>
 
                         <!-- FORM CHECK OUT -->
-                        <form action="<?= base_url('dashboard/check_out'); ?>" method="post" enctype="multipart/form-data">
+                        <form id="form-checkout" action="<?= base_url('dashboard/check_out'); ?>" method="post" enctype="multipart/form-data">
                             <input type="hidden" name="latout" id="lat_out">
                             <input type="hidden" name="longout" id="long_out">
                             <!-- Tombol awal untuk ambil lokasi -->
@@ -305,7 +306,8 @@
                             <!-- Submit button -->
                             <div class="row" id="submit_btn_out" style="display: none;">
                                 <div class="col-xs-12">
-                                    <button type="submit" id="btn_submit_checkout" class="btn btn-block bg-orange btn-block" onclick="return handleCheckOutSubmit(this)">CHECK OUT - SUBMIT</button>
+                                    <!-- <button type="submit" id="btn_submit_checkout" class="btn btn-block bg-orange btn-block" onclick="return handleCheckOutSubmit(this)">CHECK OUT - SUBMIT</button> -->
+                                    <button type="button" id="btn_submit_checkout" class="btn btn-block bg-orange btn-block">CHECK OUT - SUBMIT</button>
                                 </div>
                             </div>
                         </form>                         
@@ -456,8 +458,24 @@
                             }
                         }
 
+                        
+                        // Button "Check In"
+                        document.getElementById("btn_submit_checkin").addEventListener("click", function() {
+                            const confirmCheck = confirm('Confirmation Check In ?');
+                            if (!confirmCheck) return false;
+
+                            let button = document.getElementById("btn_submit_checkin");
+                            // Disable tombol dan ganti teks saat proses berjalan
+                            button.disabled = true;
+                            button.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Submitting...';
+                            
+                            document.getElementById('form-checkin').submit();
+                        });
+
+
                         function handleSubmitCheckIn(button) {
                             const confirmCheck = confirm('Confirmation Check In ?');
+                            console.log(confirmCheck);
                             if (!confirmCheck) return false;
 
                             // Disable tombol dan ganti teks saat proses berjalan
@@ -485,7 +503,7 @@
                         }
 
                         function handleLocationError(error) {
-                            alert("Gagal mengambil lokasi: " + error.message);
+                            return alert("Gagal mengambil lokasi: " + error.message);
                         }
 
                         // Button "Take Selfie"
@@ -540,6 +558,21 @@
                                 btn.innerHTML = 'CHECK OUT';
                             }
                         }
+
+                        
+                        // Button "Check Out"
+                        document.getElementById("btn_submit_checkout").addEventListener("click", function() {
+                            console.log('CLICK');
+                            const confirmCheck = confirm('Confirmation Check Out ?');
+                            if (!confirmCheck) return false;
+
+                            let button = document.getElementById("btn_submit_checkout");
+                            // Disable tombol dan ganti teks saat proses berjalan
+                            button.disabled = true;
+                            button.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Submitting...';
+                            
+                            document.getElementById('form-checkout').submit();
+                        });
 
                         function handleCheckOutSubmit(button) {
                             const confirmSubmit = confirm("Confirmation Check Out ?");
