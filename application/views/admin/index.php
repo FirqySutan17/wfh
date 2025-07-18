@@ -231,7 +231,7 @@
                             <!-- Submit button -->
                             <div class="row" id="submit_btn" style="display: none;">
                                 <div class="col-xs-12">
-                                    <button type="submit" id="btn_submit_checkin" class="btn btn-block bg-green btn-block" onclick="return confirm('Confirmation Check In ?')">CHECK IN - SUBMIT</button>
+                                    <button type="submit" id="btn_submit_checkin" class="btn btn-block bg-green btn-block" onclick="return handleSubmitCheckIn(this)">CHECK IN - SUBMIT</button>
                                 </div>
                             </div>
 
@@ -305,7 +305,7 @@
                             <!-- Submit button -->
                             <div class="row" id="submit_btn_out" style="display: none;">
                                 <div class="col-xs-12">
-                                    <button type="submit" id="btn_submit_checkout" class="btn btn-block bg-orange btn-block" onclick="return confirm('Confirmation Check Out ?')">CHECK OUT - SUBMIT</button>
+                                    <button type="submit" id="btn_submit_checkout" class="btn btn-block bg-orange btn-block" onclick="return handleCheckOutSubmit(this)">CHECK OUT - SUBMIT</button>
                                 </div>
                             </div>
                         </form>                         
@@ -441,7 +441,7 @@
                         function getLocation() {
                             const btn = document.getElementById("btn_check_in");
                             btn.disabled = true;
-                            btn.innerHTML = 'Loading...';
+                            btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Getting Location...';
 
                             if (navigator.geolocation) {
                                 navigator.geolocation.getCurrentPosition(showPosition, function(error) {
@@ -462,7 +462,7 @@
 
                             // Disable tombol dan ganti teks saat proses berjalan
                             button.disabled = true;
-                            button.innerHTML = 'Loading...';
+                            button.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Submitting...';
 
                             // Biarkan form tetap submit
                             return true;
