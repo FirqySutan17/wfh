@@ -204,7 +204,7 @@
 
     <center><img src="<?= base_url('assets/img/logo.png') ?>" style="width: 100%; object-fit: cover;z-index: 100"></center>
     <h1>
-      <font face="cjfont">DAILY SALES RPA</font>
+      <font face="cjfont">ONLINE ATTENDANCE</font>
     </h1>
 
     <?php if ($is_login): ?>
