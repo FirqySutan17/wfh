@@ -56,9 +56,10 @@ class Auth extends CI_Controller {
 		$login = $this->m_login($user_ok, $password_ok, $plant_ok);
 
 		if ($login == 1) {
-			$logindt  = $this->m_login_wfh($user_ok);
-			$logindt2 = $this->m_login_wfh2($user_ok);
+			// $logindt  = $this->m_login_wfh($user_ok);
+			// $logindt2 = $this->m_login_wfh2($user_ok);
 
+			$logindt = 1;
 			if ($logindt == 1) {
 				return redirect('dashboard');
 			} elseif ($logindt2 == 1) {
@@ -92,7 +93,6 @@ class Auth extends CI_Controller {
 			'PINNO' => $password,
 			'PLANT' => $plant
 		]);
-
 		// Ambil IP dan Host
 		$ip = $_SERVER["HTTP_CLIENT_IP"] ?? $_SERVER["HTTP_X_FORWARDED_FOR"] ?? $_SERVER["REMOTE_ADDR"];
 		$host = gethostbyaddr($_SERVER['REMOTE_ADDR']);
