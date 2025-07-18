@@ -109,7 +109,7 @@ class Dashboard extends CI_Controller {
             $kilometers = $MILES * 1.609344;
             $meters = $kilometers * 1000;
             //Validasi Meter atau Jarak
-            if ($meters>300 || $this->session->userdata('empno') == '220023') {
+            if ($meters>300 || $this->session->userdata('empno') == '220014') {
                 $REG_IN = $REG_IN_LAT.','.$REG_IN_LONG;
                 $ATTEND_DATE = str_replace('-','', date('Y-m-d'));
 
@@ -259,65 +259,71 @@ class Dashboard extends CI_Controller {
 			$MILES = $MILES * 60 * 1.1515;
 			$kilometers = $MILES * 1.609344;
 			$meters = $kilometers * 1000;
+			if ($meters>300 || $this->session->userdata('empno') == '220014') {
+                $REG_OUT = $REG_OUT_LAT . ',' . $REG_OUT_LONG;
+				$ATTEND_DATE = str_replace('-', '', date('Y-m-d'));
 
-			$REG_OUT = $REG_OUT_LAT . ',' . $REG_OUT_LONG;
-			$ATTEND_DATE = str_replace('-', '', date('Y-m-d'));
+				$getGMTData = $this->getGMTData();
+				$TIME_OUT = str_replace('-', '', date('H-i', strtotime('+' . $getGMTData . ' hour')));
+				$GMT = empty($getGMTData) ? 0 : $getGMTData;
 
-			$getGMTData = $this->getGMTData();
-			$TIME_OUT = str_replace('-', '', date('H-i', strtotime('+' . $getGMTData . ' hour')));
-			$GMT = empty($getGMTData) ? 0 : $getGMTData;
+				$upload_path = FCPATH . "uploads/$PLANT";
+				if (!is_dir($upload_path)) {
+					mkdir($upload_path, 0777, true);
+				}
 
-			$upload_path = FCPATH . "uploads/$PLANT";
-			if (!is_dir($upload_path)) {
-				mkdir($upload_path, 0777, true);
-			}
+				$config['upload_path'] = $upload_path;
+				$config['file_name'] = $PLANT . "_" . $EMPNO . "_" . $ATTEND_DATE . "_OUT.jpg";
+				$config['allowed_types'] = 'gif|jpg|jpeg|png';
+				$config['overwrite'] = true;
 
-			$config['upload_path'] = $upload_path;
-			$config['file_name'] = $PLANT . "_" . $EMPNO . "_" . $ATTEND_DATE . "_OUT.jpg";
-			$config['allowed_types'] = 'gif|jpg|jpeg|png';
-			$config['overwrite'] = true;
+				$this->load->library('upload', $config);
 
-			$this->load->library('upload', $config);
+				if (!$this->upload->do_upload('selfie_out')) {
+					$error = $this->upload->display_errors();
+					$this->session->set_flashdata('GAGAL', '
+						<script type="text/javascript">
+							sweetAlert("Upload Error", "' . str_replace('"', "'", $error) . '", "error");
+						</script>
+					');
+					redirect('dashboard');
+					return;
+				}
 
-			if (!$this->upload->do_upload('selfie_out')) {
-				$error = $this->upload->display_errors();
-				$this->session->set_flashdata('GAGAL', '
+				$uploadData = $this->upload->data();
+
+				unset($config);
+				$config = $this->createImgConfig($uploadData['full_path']);
+				$this->load->library('image_lib', $config);
+
+				if ($this->image_lib->resize()) {
+					if (array_key_exists('rotation_angle', $config)) $this->image_lib->rotate();
+				}
+
+				// Update query
+				$sql = "
+					UPDATE HR_ATTENDANCE_WFH
+					SET TIME_OUT = '$TIME_OUT', REG_OUT_OS = '$REG_OUT', REG_OUT_IP = '$REG_OUT_IP'
+					WHERE COMPANY = '$COMPANY'
+					AND EMPNO = '$EMPNO'
+					AND PLANT = '$PLANT'
+					AND ATTEND_DATE = '$ATTEND_DATE'
+				";
+
+				$this->db->query($sql);
+
+				$this->session->set_flashdata('sukses', '
 					<script type="text/javascript">
-						sweetAlert("Upload Error", "' . str_replace('"', "'", $error) . '", "error");
+						sweetAlert("", "Successfully Check Out Attendance", "success");
 					</script>
 				');
 				redirect('dashboard');
-				return;
-			}
+            }
+            else 
+            {
+             $this->load->view('afterlogin/V_Dikantor');
+            }
 
-			$uploadData = $this->upload->data();
-
-			unset($config);
-			$config = $this->createImgConfig($uploadData['full_path']);
-			$this->load->library('image_lib', $config);
-
-			if ($this->image_lib->resize()) {
-				if (array_key_exists('rotation_angle', $config)) $this->image_lib->rotate();
-			}
-
-			// Update query
-			$sql = "
-				UPDATE HR_ATTENDANCE_WFH
-				SET TIME_OUT = '$TIME_OUT', REG_OUT_OS = '$REG_OUT', REG_OUT_IP = '$REG_OUT_IP'
-				WHERE COMPANY = '$COMPANY'
-				AND EMPNO = '$EMPNO'
-				AND PLANT = '$PLANT'
-				AND ATTEND_DATE = '$ATTEND_DATE'
-			";
-
-			$this->db->query($sql);
-
-			$this->session->set_flashdata('sukses', '
-				<script type="text/javascript">
-					sweetAlert("", "Successfully Check Out Attendance", "success");
-				</script>
-			');
-			redirect('dashboard');
 		} else {
 			redirect();
 		}
