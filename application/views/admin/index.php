@@ -206,14 +206,14 @@
                                     </div>
                                 </div>
 
-                                <!-- Google Map dan Selfie Preview -->
+                                <!-- Bagian preview & upload -->
                                 <div class="row" id="map_and_selfie" style="display: none;">
                                     <div class="col-xs-6 rp-r">
                                         <iframe id="google_map_preview" width="100%" height="150" frameborder="0" style="border:0"></iframe>
                                     </div>
                                     <div class="col-xs-6 rp-l">
                                         <img class="selfie-prv" id="selfie_in_prv" src="#" style="display: none; width: 100%; border: 1px solid #ccc;" />
-                                        <p id="gambar_terpilih" class="text-success" style="display:none; text-align: center;">✅ Gambar didapatkan</p>
+                                        <p id="gambar_terpilih" class="text-success" style="display:none; text-align: center;">✅ Gambar berhasil dipilih</p>
                                     </div>
                                 </div>
 
@@ -455,6 +455,7 @@
                             }
                         }
 
+                        // Setelah lokasi didapatkan
                         function showPosition(position) {
                             const lat = position.coords.latitude;
                             const long = position.coords.longitude;
@@ -479,7 +480,6 @@
                         document.getElementById("selfie_in").click();
                     });
 
-
                     // Saat selfie diupload
                     document.getElementById("selfie_in").addEventListener("change", function(event) {
                         const file = event.target.files[0];
@@ -489,8 +489,10 @@
                                 const img = document.getElementById("selfie_in_prv");
                                 img.src = e.target.result;
                                 img.style.display = "block";
+
                                 document.getElementById("gambar_terpilih").style.display = "block";
                                 document.getElementById("submit_btn").style.display = "block";
+                                document.getElementById("do_selfie").style.display = "none"; // Sembunyikan tombol
                             };
                             reader.readAsDataURL(file);
                         }
