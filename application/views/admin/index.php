@@ -280,7 +280,7 @@
                             <!-- Tombol awal untuk ambil lokasi -->
                             <div class="row" id="btn_get_location_out">
                                 <div class="col-xs-12">
-                                    <button type="button" id="btn_get_location_out" class="btn btn-block bg-orange btn-block" onclick="getCurrentLocation(this)">CHECK OUT</button>
+                                    <button type="button" id="btn_check_out" class="btn btn-block bg-orange btn-block" onclick="getCurrentLocation()">CHECK OUT</button>
                                 </div>
                             </div>
 
@@ -523,22 +523,21 @@
                         }
                     </script>
                     <script>
-                        function getCurrentLocation(button) {
-                            if (navigator.geolocation) {
-                                // Disable tombol & tampilkan loading
-                                button.disabled = true;
-                                button.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Getting Location...';
+                        function getCurrentLocation() {
+                            const btn = document.getElementById("btn_check_out");
+                            btn.disabled = true;
+                            btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Getting Location...';
 
-                                navigator.geolocation.getCurrentPosition(
-                                    showPositionOut,
-                                    function(error) {
-                                        alert("Gagal mendapatkan lokasi: " + error.message);
-                                        button.disabled = false;
-                                        button.innerHTML = 'CHECK OUT';
-                                    }
-                                );
+                            if (navigator.geolocation) {
+                                navigator.geolocation.getCurrentPosition(showPositionOut, function(error) {
+                                    alert("Gagal mendapatkan lokasi: " + error.message);
+                                    btn.disabled = false;
+                                    btn.innerHTML = 'CHECK OUT';
+                                });
                             } else {
                                 alert("Browser tidak mendukung Geolocation.");
+                                btn.disabled = false;
+                                btn.innerHTML = 'CHECK OUT';
                             }
                         }
 
