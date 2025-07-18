@@ -146,16 +146,23 @@ class Dashboard extends CI_Controller {
                     $ip = $_SERVER["REMOTE_ADDR"];
                 }
 
-                $config['upload_path']          = "./uploads/$PLANT";
-                $config['file_name']            = $PLANT."_".$EMPNO."_".$ATTEND_DATE."_IN.jpg";
-                $config['allowed_types']        = 'gif|jpg|jpeg|png';
-                $config['overwrite']            = true;
-                $this->load->library('upload', $config);
+                $upload_path = FCPATH . "uploads/$PLANT";
+				if (!is_dir($upload_path)) {
+					mkdir($upload_path, 0777, true); // Buat folder otomatis
+				}
 
-                if ( ! $this->upload->do_upload('selfie_in')) {
+				$config['upload_path'] = $upload_path;
+				$config['file_name'] = $PLANT."_".$EMPNO."_".$ATTEND_DATE."_IN.jpg";
+				$config['allowed_types'] = 'gif|jpg|jpeg|png';
+				$config['overwrite'] = true;
+
+				$this->load->library('upload', $config);
+
+                if (! $this->upload->do_upload('selfie_in')) {
+					$error = $this->upload->display_errors(); // Ambil pesan error upload
 					$this->session->set_flashdata('GAGAL', '
 						<script type="text/javascript">
-							sweetAlert("", "Fail to save Data", "error");
+							sweetAlert("Upload Error", "'.str_replace('"', "'", $error).'", "error");
 						</script>
 					');
 					redirect('dashboard');
@@ -213,6 +220,159 @@ class Dashboard extends CI_Controller {
         {
             redirect();
         }
+    }
+
+	public function check_out()
+	{
+		if ($this->session->userdata('empno')) 
+		{
+			date_default_timezone_set('Asia/Jakarta');
+			$GMT = 7;
+
+			$COMPANY = '01';
+			$EMPNO = $this->session->userdata('empno');
+			$PINNO = $this->session->userdata('pinno');
+			$PLANT = $this->session->userdata('plant');
+			$REG_OUT_OS = $this->session->userdata('host');
+			$REG_OUT_IP = $this->session->userdata('ip');
+
+			$REG_OUT_LAT = $this->input->post('latout');
+			$REG_OUT_LONG = $this->input->post('longout');
+
+			if (empty($REG_OUT_LAT) || empty($REG_OUT_LONG)) {
+				$this->session->set_flashdata('GAGAL', '
+					<script type="text/javascript">
+						sweetAlert("", "Lokasi gagal didapatkan. Silakan aktifkan GPS Anda.", "error");
+					</script>
+				');
+				redirect('dashboard');
+				return;
+			}
+
+			$LAT_CJJKT = -6.2334289;
+			$LONG_CJJKT = 106.8190722;
+
+			$THETA = $LONG_CJJKT - $REG_OUT_LONG;
+			$MILES = (sin(deg2rad($LAT_CJJKT)) * sin(deg2rad($REG_OUT_LAT))) + (cos(deg2rad($LAT_CJJKT)) * cos(deg2rad($REG_OUT_LAT)) * cos(deg2rad($THETA)));
+			$MILES = acos($MILES);
+			$MILES = rad2deg($MILES);
+			$MILES = $MILES * 60 * 1.1515;
+			$kilometers = $MILES * 1.609344;
+			$meters = $kilometers * 1000;
+
+			$REG_OUT = $REG_OUT_LAT . ',' . $REG_OUT_LONG;
+			$ATTEND_DATE = str_replace('-', '', date('Y-m-d'));
+
+			$getGMTData = $this->getGMTData();
+			$TIME_OUT = str_replace('-', '', date('H-i', strtotime('+' . $getGMTData . ' hour')));
+			$GMT = empty($getGMTData) ? 0 : $getGMTData;
+
+			$upload_path = FCPATH . "uploads/$PLANT";
+			if (!is_dir($upload_path)) {
+				mkdir($upload_path, 0777, true);
+			}
+
+			$config['upload_path'] = $upload_path;
+			$config['file_name'] = $PLANT . "_" . $EMPNO . "_" . $ATTEND_DATE . "_OUT.jpg";
+			$config['allowed_types'] = 'gif|jpg|jpeg|png';
+			$config['overwrite'] = true;
+
+			$this->load->library('upload', $config);
+
+			if (!$this->upload->do_upload('selfie_out')) {
+				$error = $this->upload->display_errors();
+				$this->session->set_flashdata('GAGAL', '
+					<script type="text/javascript">
+						sweetAlert("Upload Error", "' . str_replace('"', "'", $error) . '", "error");
+					</script>
+				');
+				redirect('dashboard');
+				return;
+			}
+
+			$uploadData = $this->upload->data();
+
+			unset($config);
+			$config = $this->createImgConfig($uploadData['full_path']);
+			$this->load->library('image_lib', $config);
+
+			if ($this->image_lib->resize()) {
+				if (array_key_exists('rotation_angle', $config)) $this->image_lib->rotate();
+			}
+
+			// Update query
+			$sql = "
+				UPDATE HR_ATTENDANCE_WFH
+				SET TIME_OUT = '$TIME_OUT', REG_OUT_OS = '$REG_OUT', REG_OUT_IP = '$REG_OUT_IP'
+				WHERE COMPANY = '$COMPANY'
+				AND EMPNO = '$EMPNO'
+				AND PLANT = '$PLANT'
+				AND ATTEND_DATE = '$ATTEND_DATE'
+			";
+
+			$this->db->query($sql);
+
+			$this->session->set_flashdata('sukses', '
+				<script type="text/javascript">
+					sweetAlert("", "Successfully Check Out Attendance", "success");
+				</script>
+			');
+			redirect('dashboard');
+		} else {
+			redirect();
+		}
+	}
+
+	private function createImgConfig($path)
+    {
+        $config['image_library'] = 'gd2';
+        $config['source_image'] = $path;
+        $config['maintain_ratio'] = TRUE;
+        $config['new_image']     = $path;
+
+        $exif = exif_read_data($path);
+
+        if ($exif && (!empty($exif['Orientation']))) {
+            switch ($exif['Orientation']) {
+                case 1: // nothing
+                    $config['width'] = 500;
+                    break;
+                case 2: // horizontal flip
+                    $config['rotation_angle'] = 'hor';
+                    $config['width'] = 500;
+                    break;
+                case 3: // 180 rotate left
+                    $config['rotation_angle'] = 180;
+                    $config['width'] = 500;
+                    break;
+                case 4: // vertical flip
+                    $config['rotation_angle'] = 'ver';
+                    $config['width'] = 500;
+                    break;
+                case 5: // vertical flip + 90 rotate right
+                    $config['rotation_angle'] = 270;
+                    $config['height'] = 500;
+                    break;
+                case 6: // 90 rotate right
+                    $config['rotation_angle'] = 270;
+                    $config['height'] = 500;
+                    break;
+                case 7: // horizontal flip + 90 rotate right
+                    $config['rotation_angle'] = 90;
+                    $config['height'] = 500;
+                    break;
+                case 8:    // 90 rotate left
+                    $config['rotation_angle'] = 90;
+                    $config['height'] = 500;
+                    break;
+                default:
+                    $config['width'] = 500;
+            }
+        } else {
+            $config['width'] = 500;
+        }
+
+        return $config;
     }
 
 	private function getGMTData() {

@@ -56,7 +56,7 @@
 		}
 
 		.card-box {
-			width: 360px;
+			width: 95%;
 			margin: 5% auto;
 			padding: 10px;
 		}
@@ -194,56 +194,67 @@
                     ?>
 
                     <?php if ($baris->IN_TIME == '0000' and is_null($lattt)) { ?>
-                           <form id="form-checkin" action="<?php echo base_url('dashboard/check_in'); ?>" method="post" enctype="multipart/form-data">
-                                <!-- Koordinat (disembunyikan) -->
-                                <input type="hidden" name="lat" id="lat">
-                                <input type="hidden" name="long" id="long">
+                        <form id="form-checkin" action="<?php echo base_url('dashboard/check_in'); ?>" method="post" enctype="multipart/form-data">
+                            <!-- Koordinat (disembunyikan) -->
+                            <input type="hidden" name="lat" id="lat">
+                            <input type="hidden" name="long" id="long">
 
-                                <!-- Tombol awal untuk ambil lokasi -->
-                                <div class="row" id="btn_get_location">
-                                    <div class="col-xs-12">
-                                        <button type="button" class="btn btn-block bg-green btn-block" onclick="getLocation()">CHECK IN</button>
-                                    </div>
+                            <!-- Tombol awal untuk ambil lokasi -->
+                            <div class="row" id="btn_get_location">
+                                <div class="col-xs-12">
+                                    <button type="button" class="btn btn-block bg-green btn-block" onclick="getLocation()">CHECK IN</button>
                                 </div>
+                            </div>
 
-                                <!-- Bagian preview & upload -->
-                                <div class="row" id="map_and_selfie" style="display: none;">
-                                    <div class="col-xs-6 rp-r">
-                                        <iframe id="google_map_preview" width="100%" height="150" frameborder="0" style="border:0"></iframe>
-                                    </div>
-                                    <div class="col-xs-6 rp-l">
-                                        <img class="selfie-prv" id="selfie_in_prv" src="#" style="display: none; width: 100%; border: 1px solid #ccc;" />
-                                        <p id="gambar_terpilih" class="text-success" style="display:none; text-align: center;">✅ Gambar berhasil dipilih</p>
-                                    </div>
+                            <!-- Bagian preview & upload -->
+                            <div class="row" id="map_and_selfie" style="display: none;">
+                                <div class="col-xs-6 rp-r">
+                                    <iframe id="google_map_preview" width="100%" height="150" frameborder="0" style="border:0"></iframe>
                                 </div>
-
-                                <!-- Upload Selfie -->
-                                <div class="row" id="row_selfie" style="display: none;">
-                                    <div class="col-xs-12">
-                                        <input type="file" name="selfie_in" id="selfie_in" accept="image/*" capture="user" style="display: none;" required>
-                                        <button type="button" id="do_selfie" class="btn btn-block bg-green btn-block">TAKE SELFIE</button>
-                                    </div>
+                                <div class="col-xs-6 rp-l">
+                                    <img class="selfie-prv" id="selfie_in_prv" src="#" style="display: none; width: 100%; border: 1px solid #ccc;" />
+                                    <p id="gambar_terpilih" class="text-success" style="display:none; text-align: center;">✅ Gambar terupload</p>
                                 </div>
+                            </div>
 
-                                <!-- Submit button -->
-                                <div class="row" id="submit_btn" style="display: none;">
-                                    <div class="col-xs-12">
-                                        <button type="submit" class="btn btn-block bg-green btn-block" onclick="return confirm('Confirmation Check In ?')">CHECK IN - SUBMIT</button>
-                                    </div>
+                            <!-- Upload Selfie -->
+                            <div class="row" id="row_selfie" style="display: none;">
+                                <div class="col-xs-12">
+                                    <input type="file" name="selfie_in" id="selfie_in" accept="image/*" capture="user" style="display: none;" required>
+                                    <button type="button" id="do_selfie" class="btn btn-block bg-green btn-block">TAKE SELFIE</button>
                                 </div>
+                            </div>
 
-                                <!-- Flash messages -->
-                                <p class="text-danger"><?php echo $this->session->flashdata('message'); ?></p>
-                                <p class="text-success"><?php echo $this->session->flashdata('sukses'); ?></p>
-                            </form>
-                    <?php } else if ($baris->IN_TIME <> '0000' and $baris->OUT_TIME == '0000' and is_null($lattt)) { ?>
+                            <!-- Submit button -->
+                            <div class="row" id="submit_btn" style="display: none;">
+                                <div class="col-xs-12">
+                                    <button type="submit" class="btn btn-block bg-green btn-block" onclick="return confirm('Confirmation Check In ?')">CHECK IN - SUBMIT</button>
+                                </div>
+                            </div>
+
+                            <!-- Flash messages -->
+                            <p class="text-danger"><?php echo $this->session->flashdata('message'); ?></p>
+                            <p class="text-success"><?php echo $this->session->flashdata('sukses'); ?></p>
+                        </form>
+                    <?php } else if ($baris->IN_TIME !== '0000' && ($baris->OUT_TIME == '0000' || empty($baris->OUT_TIME))) { ?>
                         <?php $IN_KOOR =  $baris->REG_IN_OS; ?>
+
+                        <!-- TAMPILKAN KOORDINAT MASUK -->
                         <div class="row">
                             <div class="col-xs-6 rp-r">
-                                <iframe width="100%" height="150" frameborder="0" style="border:0" src="https://www.google.com/maps/embed/v1/place?q=<?php echo $IN_KOOR;?>&amp;key=AIzaSyBxty2H-6okfgQqlKcUb_g5qW62W9ocEVw"></iframe>
+                                <iframe width="100%" height="150" frameborder="0" style="border:0" 
+                                    src="https://www.google.com/maps/embed/v1/place?q=<?php echo $IN_KOOR;?>&amp;key=AIzaSyBxty2H-6okfgQqlKcUb_g5qW62W9ocEVw">
+                                </iframe>
                             </div>
                             <div class="col-xs-6 rp-l">
-                                <img class="selfie-prv" src=""/>
+                                 <?php 
+                                    $plant = $this->session->userdata('plant');
+                                    $empno = $this->session->userdata('empno');
+                                    $attend_date = $baris->ATTEND_DATE;
+                                    $filename = "{$plant}_{$empno}_{$attend_date}_IN.jpg";
+                                    $img_url = base_url("uploads/{$plant}/{$filename}");
+                                ?>
+                                <img class="selfie-prv" src="<?php echo $img_url; ?>" style="width: 100%; border-radius: 6px;" />
                             </div>
                         </div>
 
@@ -251,111 +262,51 @@
                             <div class="col-md-12">
                                 <div class="input-group input-group-sm" style="width: 100%;">
                                     <span class="input-group-addon" style="width: 100px;"><b>TIME IN</b></span>
-                                    <input type="text" name="TIME_IN" class="form-control" readonly value="<?php echo $attend_date.' '.substr($baris->IN_TIME, 0, 2)." : ".substr($baris->IN_TIME, 2, 2) ?>" placeholder="<?php echo $attend_date.' '.$baris->IN_TIME ;?>">
+                                    <input type="text" name="TIME_IN" class="form-control" readonly 
+                                        value="<?php echo $attend_date.' '.substr($baris->IN_TIME, 0, 2)." : ".substr($baris->IN_TIME, 2, 2) ?>">
                                 </div>
                             </div>
                         </div>
+
                         <br>
-                        <?php if ($current_hour <= 12) { ?>
-                            <p><i>*Note : Untuk melakukan <b>ABSEN KELUAR</b> bisa dilakukan diatas pukul 12.00</i></p>
-                        <?php } ?>
-                        <?php if ($current_hour >= 12) { ?>  
-                            <form action="https://dtech.web.id/cjfnl" method="post">           
-                                <div class="row">
-                                    <div class="col-xs-12">
-                                        <!-- <button type="submit" class="btn btn-block bg-green btn-block" )">Share Location</button> -->
-                                        <a href="https://gpsrequest.cjfnc.id/" class="btn btn-block bg-orange btn-block">CHECK OUT</a>
-                                    </div>
+
+                        <!-- FORM CHECK OUT -->
+                        <form action="<?= base_url('dashboard/check_out'); ?>" method="post" enctype="multipart/form-data">
+                            <input type="hidden" name="latout" id="lat_out">
+                            <input type="hidden" name="longout" id="long_out">
+                            <!-- Tombol awal untuk ambil lokasi -->
+                            <div class="row" id="btn_get_location_out">
+                                <div class="col-xs-12">
+                                    <button type="button" class="btn btn-block bg-green btn-block" onclick="getCurrentLocation()">CHECK OUT</button>
                                 </div>
-                                <p class="text-danger"><?php echo $this->session->flashdata('message');?></p>
-                            </form>
-                        <?php } ?>
-                    <?php } else if ($baris->IN_TIME <> '0000' and $baris->OUT_TIME == '0000' and isset($lattt)) { ?>
-                        <?php $IN_KOOR =  $baris->REG_IN_OS; ?>
-                            <!-- IN DETAIL -->
-                            <div class="row">
+                            </div>
+
+                            <!-- Bagian preview map & upload selfie -->
+                            <div class="row" id="map_and_selfie_out" style="display: none;">
                                 <div class="col-xs-6 rp-r">
-                                    <iframe width="100%" height="150" frameborder="0" style="border:0" src="https://www.google.com/maps/embed/v1/place?q=<?php echo $IN_KOOR;?>&amp;key=AIzaSyBxty2H-6okfgQqlKcUb_g5qW62W9ocEVw"></iframe>
+                                    <iframe id="google_map_preview_out" width="100%" height="150" frameborder="0" style="border:0"></iframe>
                                 </div>
                                 <div class="col-xs-6 rp-l">
-                                    <img class="selfie-prv" src=""/>
+                                    <img class="selfie-prv" id="selfie_out_prv" src="#" style="display: none; width: 100%; border: 1px solid #ccc;" />
                                 </div>
                             </div>
 
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="input-group input-group-sm" style="width: 100%;">
-                                        <span class="input-group-addon" style="width: 100px;"><b>TIME IN</b></span>
-                                        <input type="text" name="TIME_IN" class="form-control" readonly value="<?php echo $attend_date.' '.substr($baris->IN_TIME, 0, 2)." : ".substr($baris->IN_TIME, 2, 2) ?>" placeholder="<?php echo $attend_date.' '.$baris->IN_TIME ;?>">
-                                    </div>
+                            <!-- Upload Selfie -->
+                            <div class="row" id="row_selfie_out" style="display: none;">
+                                <div class="col-xs-12">
+                                    <input type="file" name="selfie_out" id="selfie_out" accept="image/*" capture="user" style="display: none;" required>
+                                    <button type="button" id="do_selfie_out" class="btn btn-block bg-green btn-block">TAKE SELFIE</button>
                                 </div>
                             </div>
 
-                            <br>
-
-                            <!-- OUT DETAIL -->
-
-                            <div class="row">
-                                <div class="col-xs-6 rp-r">
-                                    <iframe width="100%" height="150" frameborder="0" style="border:0" src="https://www.google.com/maps/embed/v1/place?q=<?php echo $lattt;?>,<?php echo $longgg;?>&amp;key=AIzaSyBxty2H-6okfgQqlKcUb_g5qW62W9ocEVw"></iframe>
-                                </div>
-                                <div class="col-xs-6 rp-l">
-                                    <img class="selfie-prv" id="selfie_out_prv" src="#" style="display: none"/>
+                            <!-- Submit button -->
+                            <div class="row" id="submit_btn_out" style="display: none;">
+                                <div class="col-xs-12">
+                                    <button type="submit" class="btn btn-block bg-green btn-block" onclick="return confirm('Confirmation Check Out ?')">CHECK OUT - SUBMIT</button>
                                 </div>
                             </div>
-
-                            <form action="<?php echo base_url();?>add_out" method="post" enctype="multipart/form-data">
-                                <input type="hidden" name="attend_date_checkout" value="<?= $attend_date ?>">
-                                <div class="row" style="display: none;">
-                                    <div class="col-xs-12">
-                                        <div class="form-group">
-                                            <input type="file" name="selfie_out" id="selfie_out" accept="image/*" capture="user">
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row" id="selfie_btn">
-                                    <div class="col-xs-12">
-                                        <button type="button" id="do_selfie" class="btn btn-block bg-blue btn-block">TAKE SELFIE</button>
-                                    </div>
-                                </div>	 
-                                <div class="row" id="submit_btn" style="display: none;">
-                                    <div class="col-xs-12">
-                                        <button type="submit" id="out_btn" class="btn btn-block bg-blue btn-block" onclick="return confirm('Confirmation Check Out ?')">CHECK OUT - SUBMIT</button>
-                                    </div>
-                                </div>
-                                <p class="text-danger"><?php echo $this->session->flashdata('message');?></p>
-                            </form>
-
-                            <script>
-                            document.getElementById("do_selfie").addEventListener("click", function() {
-                                const result = getMobileOperatingSystem();
-
-                                if (result != "unknown"){
-                                    document.getElementById("selfie_out").click();
-                                } else {
-                                    alert("Error, please use Android/iOS phone and updated browser!");
-                                }
-                            });
-                            document.getElementById("selfie_out").addEventListener("change", function () {
-                                const inputFile = document.getElementById("selfie_out");
-                                const btnSubmit = document.getElementById("submit_btn");
-                                const imgSelfie = document.getElementById("selfie_out_prv");
-                                const btnSelfie = document.getElementById("selfie_btn");
-                                if (inputFile.files.length === 0) {
-                                    btnSubmit.style.display = 'none';
-                                    imgSelfie.style.display = 'none';
-                                    btnSelfie.style.display = 'block';
-                                } else {
-                                    btnSelfie.style.display = 'none';
-                                    btnSubmit.style.display = 'block';
-                                    imgSelfie.style.display = 'inline-block';
-
-                                    const [file] = inputFile.files;
-                                    imgSelfie.src = URL.createObjectURL(file);
-                                }
-                            });
-                            </script>                              
-                    <?php } else if ($baris->IN_TIME <> '0000' and $baris->OUT_TIME <> '0000' ) { ?>
+                        </form>                         
+                    <?php } else if ($baris->IN_TIME <> '0000' && $baris->OUT_TIME <> '0000' ) { ?>
                         <?php
                             // JIKA ABSEN MASUK DAN ABSEN KELUAR SUDAH DIISI
                             $IN_KOOR =  $baris->REG_IN_OS;
@@ -368,7 +319,14 @@
                                     <iframe width="100%" height="150" frameborder="0" style="border:0" src="https://www.google.com/maps/embed/v1/place?q=<?php echo $IN_KOOR;?>&amp;key=AIzaSyBxty2H-6okfgQqlKcUb_g5qW62W9ocEVw"></iframe>
                                 </div>
                                 <div class="col-xs-6 rp-l">
-                                    <img class="selfie-prv" src=""/>
+                                     <?php 
+                                        $plant = $this->session->userdata('plant');
+                                        $empno = $this->session->userdata('empno');
+                                        $attend_date = $baris->ATTEND_DATE;
+                                        $filename = "{$plant}_{$empno}_{$attend_date}_IN.jpg";
+                                        $img_url = base_url("uploads/{$plant}/{$filename}");
+                                    ?>
+                                    <img class="selfie-prv" src="<?php echo $img_url; ?>" style="width: 100%; border-radius: 6px;" />
                                 </div>
                             </div>
 
@@ -376,7 +334,18 @@
                                 <div class="col-md-12">
                                     <div class="input-group input-group-sm" style="width: 100%;">
                                         <span class="input-group-addon" style="width: 100px;"><b>TIME IN</b></span>
-                                        <input type="text" name="TIME_IN" class="form-control" readonly value="<?php echo $attend_date.' '.substr($baris->IN_TIME, 0, 2)." : ".substr($baris->IN_TIME, 2, 2) ?>" placeholder="<?php echo $attend_date.' '.$baris->IN_TIME ;?>">
+                                        <?php
+                                            // Format tanggal jadi "18 July 2025"
+                                            $tanggal_format = date('d F Y', strtotime($attend_date));
+
+                                            // Format jam jadi "09:10"
+                                            $jam_format = substr($baris->IN_TIME, 0, 2) . ':' . substr($baris->IN_TIME, 2, 2);
+
+                                            // Gabungkan
+                                            $display_value = $tanggal_format . ' ' . $jam_format;
+                                        ?>
+
+                                        <input type="text" name="TIME_IN" class="form-control" readonly value="<?php echo $display_value; ?>" placeholder="<?php echo $display_value; ?>">
                                     </div>
                                 </div>
                             </div>
@@ -387,7 +356,14 @@
                                     <iframe width="100%" height="150" frameborder="0" style="border:0" src="https://www.google.com/maps/embed/v1/place?q=<?php echo $OUT_KOOR;?>&amp;key=AIzaSyBxty2H-6okfgQqlKcUb_g5qW62W9ocEVw"></iframe>
                                 </div>
                                 <div class="col-xs-6 rp-l">
-                                    <img class="selfie-prv" src=""/>
+                                     <?php 
+                                        $plant = $this->session->userdata('plant');
+                                        $empno = $this->session->userdata('empno');
+                                        $attend_date = $baris->ATTEND_DATE;
+                                        $filename = "{$plant}_{$empno}_{$attend_date}_OUT.jpg";
+                                        $img_url = base_url("uploads/{$plant}/{$filename}");
+                                    ?>
+                                    <img class="selfie-prv" src="<?php echo $img_url; ?>" style="width: 100%; border-radius: 6px;" />
                                 </div>
                             </div>
 
@@ -395,7 +371,19 @@
                                 <div class="col-md-12">
                                     <div class="input-group input-group-sm" style="width: 100%;">
                                         <span class="input-group-addon" style="width: 100px;"><b>TIME OUT</b></span>
-                                        <input type="text" name="TIME_IN" class="form-control" readonly value="<?php echo $attend_date.' '.substr($baris->OUT_TIME, 0, 2)." : ".substr($baris->OUT_TIME, 2, 2) ?>" placeholder="<?php echo $attend_date.' '.$baris->OUT_TIME ;?>">
+                                        <?php
+                                            // Format tanggal jadi "18 July 2025"
+                                            $tanggal_format_out = date('d F Y', strtotime($attend_date));
+
+                                            // Format jam jadi "09:10"
+                                            $jam_format_out = substr($baris->OUT_TIME, 0, 2) . ':' . substr($baris->OUT_TIME, 2, 2);
+
+                                            // Gabungkan
+                                            $display_value_out = $tanggal_format_out . ' ' . $jam_format_out;
+                                        ?>
+
+                                        <input type="text" name="TIME_IN" class="form-control" readonly value="<?php echo $display_value_out; ?>" placeholder="<?php echo $display_value_out; ?>">
+                                        
                                     </div>
                                 </div>
                             </div>
@@ -475,39 +463,97 @@
                             alert("Gagal mengambil lokasi: " + error.message);
                         }
 
-                    // Button "Take Selfie"
-                    document.getElementById("do_selfie").addEventListener("click", function() {
-                        document.getElementById("selfie_in").click();
-                    });
+                        // Button "Take Selfie"
+                        document.getElementById("do_selfie").addEventListener("click", function() {
+                            document.getElementById("selfie_in").click();
+                        });
 
-                    // Saat selfie diupload
-                    document.getElementById("selfie_in").addEventListener("change", function(event) {
-                        const file = event.target.files[0];
-                        if (file) {
-                            const reader = new FileReader();
-                            reader.onload = function(e) {
-                                const img = document.getElementById("selfie_in_prv");
-                                img.src = e.target.result;
-                                img.style.display = "block";
+                        // Saat selfie diupload
+                        document.getElementById("selfie_in").addEventListener("change", function(event) {
+                            const file = event.target.files[0];
+                            if (file) {
+                                const reader = new FileReader();
+                                reader.onload = function(e) {
+                                    const img = document.getElementById("selfie_in_prv");
+                                    img.src = e.target.result;
+                                    img.style.display = "block";
 
-                                document.getElementById("gambar_terpilih").style.display = "block";
-                                document.getElementById("submit_btn").style.display = "block";
-                                document.getElementById("do_selfie").style.display = "none"; // Sembunyikan tombol
-                            };
-                            reader.readAsDataURL(file);
+                                    document.getElementById("gambar_terpilih").style.display = "block";
+                                    document.getElementById("submit_btn").style.display = "block";
+                                    document.getElementById("do_selfie").style.display = "none"; // Sembunyikan tombol
+                                };
+                                reader.readAsDataURL(file);
+                            }
+                        });
+
+                        // Helper untuk deteksi OS
+                        function getMobileOperatingSystem() {
+                            var userAgent = navigator.userAgent || navigator.vendor || window.opera;
+
+                            if (/windows phone/i.test(userAgent)) return "Windows Phone";
+                            if (/android/i.test(userAgent)) return "Android";
+                            if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) return "iOS";
+
+                            return "unknown";
                         }
-                    });
+                    </script>
+                    <script>
+                        function getCurrentLocation() {
+                                if (navigator.geolocation) {
+                                    navigator.geolocation.getCurrentPosition(showPositionOut, function(error) {
+                                        alert("Gagal mendapatkan lokasi: " + error.message);
+                                    });
+                                } else {
+                                    alert("Browser tidak mendukung Geolocation.");
+                                }
+                            }
 
-                    // Helper untuk deteksi OS
-                    function getMobileOperatingSystem() {
-                        var userAgent = navigator.userAgent || navigator.vendor || window.opera;
+                            function showPositionOut(position) {
+                                const lat = position.coords.latitude;
+                                const long = position.coords.longitude;
 
-                        if (/windows phone/i.test(userAgent)) return "Windows Phone";
-                        if (/android/i.test(userAgent)) return "Android";
-                        if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) return "iOS";
+                                document.getElementById("lat_out").value = lat;
+                                document.getElementById("long_out").value = long;
 
-                        return "unknown";
-                    }
+                                const mapUrl = `https://www.google.com/maps/embed/v1/place?q=${lat},${long}&key=AIzaSyBxty2H-6okfgQqlKcUb_g5qW62W9ocEVw`;
+                                document.getElementById("google_map_preview_out").src = mapUrl;
+
+                                document.getElementById("btn_get_location_out").style.display = "none";
+                                document.getElementById("map_and_selfie_out").style.display = "flex";
+                                document.getElementById("row_selfie_out").style.display = "block";
+                            }
+
+                            // Tombol selfie OUT
+                            document.getElementById("do_selfie_out").addEventListener("click", function() {
+                                document.getElementById("selfie_out").click();
+                            });
+
+                            document.getElementById("selfie_out").addEventListener("change", function(event) {
+                                const file = event.target.files[0];
+                                if (file) {
+                                    const reader = new FileReader();
+                                    reader.onload = function(e) {
+                                        const img = document.getElementById("selfie_out_prv");
+                                        img.src = e.target.result;
+                                        img.style.display = "block";
+
+                                        document.getElementById("submit_btn_out").style.display = "block";
+                                        document.getElementById("do_selfie_out").style.display = "none";
+                                    };
+                                    reader.readAsDataURL(file);
+                                }
+                            });
+
+                            // Utility deteksi OS
+                            function getMobileOperatingSystem() {
+                                var userAgent = navigator.userAgent || navigator.vendor || window.opera;
+
+                                if (/windows phone/i.test(userAgent)) return "Windows Phone";
+                                if (/android/i.test(userAgent)) return "Android";
+                                if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) return "iOS";
+
+                                return "unknown";
+                            }
                     </script>
                 </div>
             </div>
