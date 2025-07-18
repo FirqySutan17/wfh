@@ -152,16 +152,15 @@ class Dashboard extends CI_Controller {
                 $config['overwrite']            = true;
                 $this->load->library('upload', $config);
 
-                if ( ! $this->upload->do_upload('selfie_in'))
-                {
-                    $this->session->set_flashdata('GAGAL', '
-                        <script type="text/javascript">
-                            sweetAlert("", "Fail to save Data", "error");
-                        </script>
-                        ');
-                    redirect('dashboard');
-                    return;
-                }
+                if ( ! $this->upload->do_upload('selfie_in')) {
+					$this->session->set_flashdata('GAGAL', '
+						<script type="text/javascript">
+							sweetAlert("", "Fail to save Data", "error");
+						</script>
+					');
+					redirect('dashboard');
+					return;
+				}
 
                 $uploadData = $this->upload->data();
 

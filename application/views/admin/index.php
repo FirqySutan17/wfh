@@ -195,43 +195,44 @@
 
                     <?php if ($baris->IN_TIME == '0000' and is_null($lattt)) { ?>
                            <form id="form-checkin" action="<?php echo base_url('dashboard/check_in'); ?>" method="post" enctype="multipart/form-data">
-                                <!-- Koordinat (disembunyikan) -->
                                 <input type="hidden" name="lat" id="lat">
                                 <input type="hidden" name="long" id="long">
 
-                                <!-- Tombol awal untuk ambil lokasi -->
+                                <!-- Tombol awal -->
                                 <div class="row" id="btn_get_location">
                                     <div class="col-xs-12">
                                         <button type="button" class="btn btn-block bg-green btn-block" onclick="getLocation()">CHECK IN</button>
                                     </div>
                                 </div>
 
-                                <!-- Google Map dan Selfie Preview -->
+                                <!-- Info Koordinat dan Map -->
                                 <div class="row" id="map_and_selfie" style="display: none;">
-                                    <div class="col-xs-6 rp-r">
+                                    <div class="col-xs-6">
                                         <iframe id="google_map_preview" width="100%" height="150" frameborder="0" style="border:0"></iframe>
                                     </div>
-                                    <div class="col-xs-6 rp-l">
-                                        <img class="selfie-prv" id="selfie_in_prv" src="#" style="display: none"/>
+                                    <div class="col-xs-6">
+                                        <img class="selfie-prv" id="selfie_in_prv" src="#" style="display: none; width: 100%; border: 1px solid #ccc;"/>
+                                        <p id="gambar_terpilih" class="text-success" style="display:none; text-align: center;">✅ Gambar didapatkan</p>
                                     </div>
                                 </div>
 
                                 <!-- Upload Selfie -->
                                 <div class="row" id="row_selfie" style="display: none;">
                                     <div class="col-xs-12">
-                                        <input type="file" name="selfie_in" id="selfie_in" accept="image/*" capture="user" style="display: none;">
-                                        <button type="button" id="do_selfie" class="btn btn-block bg-green btn-block">TAKE SELFIE</button>
+                                        <input type="file" name="selfie_in" id="selfie_in" accept="image/*" capture="user" required>
                                     </div>
                                 </div>
 
-                                <!-- Submit button -->
+                                <!-- Tombol Submit -->
                                 <div class="row" id="submit_btn" style="display: none;">
                                     <div class="col-xs-12">
-                                        <button type="submit" class="btn btn-block bg-green btn-block" onclick="return confirm('Confirmation Check In ?')">CHECK IN - SUBMIT</button>
+                                        <button type="submit" class="btn btn-block bg-green btn-block" onclick="return confirm('Confirmation Check In ?')">SUBMIT</button>
                                     </div>
                                 </div>
 
+                                <!-- Tampilkan pesan dari session -->
                                 <p class="text-danger"><?php echo $this->session->flashdata('message'); ?></p>
+                                <p class="text-success"><?php echo $this->session->flashdata('sukses'); ?></p>
                             </form>
                     <?php } else if ($baris->IN_TIME <> '0000' and $baris->OUT_TIME == '0000' and is_null($lattt)) { ?>
                         <?php $IN_KOOR =  $baris->REG_IN_OS; ?>
@@ -442,30 +443,33 @@
                         gsap.from(".gambar", {duration:3, rotateY:360, opacity:0});
                     </script>
                     <script>
-                    function getLocation() {
-                        if (navigator.geolocation) {
-                            navigator.geolocation.getCurrentPosition(function(position) {
-                                const lat = position.coords.latitude;
-                                const long = position.coords.longitude;
-
-                                document.getElementById('lat').value = lat;
-                                document.getElementById('long').value = long;
-
-                                // Tampilkan peta
-                                const map = document.getElementById("google_map_preview");
-                                map.src = "https://www.google.com/maps/embed/v1/place?q=" + lat + "," + long + "&key=AIzaSyBxty2H-6okfgQqlKcUb_g5qW62W9ocEVw";
-
-                                // Tampilkan semua bagian form setelah lokasi didapatkan
-                                document.getElementById("btn_get_location").style.display = "none";
-                                document.getElementById("map_and_selfie").style.display = "flex";
-                                document.getElementById("row_selfie").style.display = "block";
-                            }, function(error) {
-                                alert("Gagal mendapatkan lokasi. Aktifkan GPS dan izinkan akses lokasi.");
-                            });
-                        } else {
-                            alert("Geolocation tidak didukung oleh browser ini.");
+                        function getLocation() {
+                            if (navigator.geolocation) {
+                                navigator.geolocation.getCurrentPosition(showPosition, handleLocationError);
+                            } else {
+                                alert("Browser tidak mendukung geolocation.");
+                            }
                         }
-                    }
+
+                        function showPosition(position) {
+                            const lat = position.coords.latitude;
+                            const long = position.coords.longitude;
+
+                            document.getElementById("lat").value = lat;
+                            document.getElementById("long").value = long;
+
+                            // Set map dan tampilkan form selfie
+                            document.getElementById("google_map_preview").src = 
+                                `https://www.google.com/maps/embed/v1/place?q=${lat},${long}&key=AIzaSyBxty2H-6okfgQqlKcUb_g5qW62W9ocEVw`;
+
+                            document.getElementById("btn_get_location").style.display = "none";
+                            document.getElementById("map_and_selfie").style.display = "flex";
+                            document.getElementById("row_selfie").style.display = "block";
+                        }
+
+                        function handleLocationError(error) {
+                            alert("Gagal mengambil lokasi: " + error.message);
+                        }
 
                     // Button "Take Selfie"
                     document.getElementById("do_selfie").addEventListener("click", function() {
@@ -479,18 +483,18 @@
                     });
 
                     // Saat selfie diupload
-                    document.getElementById("selfie_in").addEventListener("change", function () {
-                        const inputFile = document.getElementById("selfie_in");
-                        const imgSelfie = document.getElementById("selfie_in_prv");
-                        const submitBtn = document.getElementById("submit_btn");
-
-                        if (inputFile.files.length > 0) {
-                            imgSelfie.src = URL.createObjectURL(inputFile.files[0]);
-                            imgSelfie.style.display = 'inline-block';
-                            submitBtn.style.display = 'block';
-                        } else {
-                            imgSelfie.style.display = 'none';
-                            submitBtn.style.display = 'none';
+                    document.getElementById("selfie_in").addEventListener("change", function(event) {
+                        const file = event.target.files[0];
+                        if (file) {
+                            const reader = new FileReader();
+                            reader.onload = function(e) {
+                                const img = document.getElementById("selfie_in_prv");
+                                img.src = e.target.result;
+                                img.style.display = "block";
+                                document.getElementById("gambar_terpilih").style.display = "block";
+                                document.getElementById("submit_btn").style.display = "block";
+                            }
+                            reader.readAsDataURL(file);
                         }
                     });
 
