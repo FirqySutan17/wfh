@@ -109,7 +109,7 @@ class Dashboard extends CI_Controller {
             $kilometers = $MILES * 1.609344;
             $meters = $kilometers * 1000;
             //Validasi Meter atau Jarak
-            if ($meters>300 || $this->session->userdata('empno') == '220014') {
+            if ($meters>300 || $this->session->userdata('empno') == '220014'|| $this->session->userdata('empno') == '220023') {
                 $REG_IN = $REG_IN_LAT.','.$REG_IN_LONG;
                 $ATTEND_DATE = str_replace('-','', date('Y-m-d'));
 
@@ -259,7 +259,7 @@ class Dashboard extends CI_Controller {
 			$MILES = $MILES * 60 * 1.1515;
 			$kilometers = $MILES * 1.609344;
 			$meters = $kilometers * 1000;
-			if ($meters>300 || $this->session->userdata('empno') == '220014') {
+			if ($meters>300 || $this->session->userdata('empno') == '220014'|| $this->session->userdata('empno') == '220023') {
                 $REG_OUT = $REG_OUT_LAT . ',' . $REG_OUT_LONG;
 				$ATTEND_DATE = str_replace('-', '', date('Y-m-d'));
 

@@ -4,7 +4,8 @@
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<title>Attendance</title>
-	<!-- <link rel="icon" href="<?php echo base_url();?>cjlogo.png" type="image/x-icon" /> -->
+	<link rel="icon" type="image/png" href="<?= asset('icon/iconcj.ico') ?>" sizes="16x16">
+    <link rel="icon" type="image/png" href="<?= asset('icon/iconcj.ico') ?>" sizes="32x32">
  	<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
   	<link rel="stylesheet" href="<?php echo base_url();?>bower_components/bootstrap/dist/css/bootstrap.min.css">
   	<link rel="stylesheet" href="<?php echo base_url();?>bower_components/font-awesome/css/font-awesome.min.css">
@@ -56,10 +57,11 @@
 		}
 
 		.card-box {
-			width: 95%;
-			margin: 5% auto;
-			padding: 10px;
-		}
+            width: 95%;
+            margin: auto;
+            padding: 10px;
+            border-radius: 10px;
+        }
     </style>
 
   	<script src="<?php echo base_url();?>dist/sweetalert/sweetalert-dev.js"></script>
@@ -71,7 +73,7 @@
 </head>
 
 
-<body class="login-page body-auth" style="background: url('../assets/img/bg-auth.png'); background-attachment:fixed; background-size: cover; height: 100%;">
+<body class="login-page body-auth" style="background: url(https://cjfnc.id/wfh-new/assets//img/bg-auth.png); background-attachment:fixed; background-size: cover; height: 100%;">
 	<div id="app">
         <main>
             <?= $this->session->flashdata('successinsert');?>
@@ -81,10 +83,11 @@
 
             <div class="card-box">
                 <div class="login-box-body">
+                    <br>
                     <!-- <p class="login-box-msg">Sign in to your account</p> -->
-                    <div class="login-logo" style="color: ">
+                    <!-- <div class="login-logo" style="color: ">
                         &nbsp<b class="attendance2">Attendance</b> 
-                    </div>
+                    </div> -->
 
                     <div class="row">
                         <div class="col-md-12">
@@ -202,7 +205,7 @@
                             <!-- Tombol awal untuk ambil lokasi -->
                             <div class="row" id="btn_get_location">
                                 <div class="col-xs-12">
-                                    <button type="button" class="btn btn-block bg-green btn-block" onclick="getLocation()">CHECK IN</button>
+                                    <button type="button" id="btn_check_in" class="btn btn-block bg-green btn-block" onclick="getLocation()">CHECK IN</button>
                                 </div>
                             </div>
 
@@ -228,7 +231,7 @@
                             <!-- Submit button -->
                             <div class="row" id="submit_btn" style="display: none;">
                                 <div class="col-xs-12">
-                                    <button type="submit" class="btn btn-block bg-green btn-block" onclick="return confirm('Confirmation Check In ?')">CHECK IN - SUBMIT</button>
+                                    <button type="submit" id="btn_submit_checkin" class="btn btn-block bg-green btn-block" onclick="return confirm('Confirmation Check In ?')">CHECK IN - SUBMIT</button>
                                 </div>
                             </div>
 
@@ -236,7 +239,7 @@
                             <p class="text-danger"><?php echo $this->session->flashdata('message'); ?></p>
                             <p class="text-success"><?php echo $this->session->flashdata('sukses'); ?></p>
                         </form>
-                    <?php } else if ($baris->IN_TIME !== '0000' && ($baris->OUT_TIME == '0000' || empty($baris->OUT_TIME))) { ?>
+                    <?php } else if ($current_hour >= 12 && $baris->IN_TIME !== '0000' && ($baris->OUT_TIME == '0000' || empty($baris->OUT_TIME))) { ?>
                         <?php $IN_KOOR =  $baris->REG_IN_OS; ?>
 
                         <!-- TAMPILKAN KOORDINAT MASUK -->
@@ -277,7 +280,7 @@
                             <!-- Tombol awal untuk ambil lokasi -->
                             <div class="row" id="btn_get_location_out">
                                 <div class="col-xs-12">
-                                    <button type="button" class="btn btn-block bg-green btn-block" onclick="getCurrentLocation()">CHECK OUT</button>
+                                    <button type="button" id="btn_get_location_out" class="btn btn-block bg-orange btn-block" onclick="getCurrentLocation(this)">CHECK OUT</button>
                                 </div>
                             </div>
 
@@ -302,7 +305,7 @@
                             <!-- Submit button -->
                             <div class="row" id="submit_btn_out" style="display: none;">
                                 <div class="col-xs-12">
-                                    <button type="submit" class="btn btn-block bg-green btn-block" onclick="return confirm('Confirmation Check Out ?')">CHECK OUT - SUBMIT</button>
+                                    <button type="submit" id="btn_submit_checkout" class="btn btn-block bg-orange btn-block" onclick="return confirm('Confirmation Check Out ?')">CHECK OUT - SUBMIT</button>
                                 </div>
                             </div>
                         </form>                         
@@ -387,6 +390,8 @@
                                     </div>
                                 </div>
                             </div>
+                            <br>
+                            <p><i>*Anda sudah melakukan absen untuk hari ini <?php $tanggal_format_out ?></i></p>
                     <?php } ?>
 
                     </div><br>	
@@ -400,7 +405,7 @@
                         <p class="text-danger"><?php echo $this->session->flashdata('message');?></p>
                     </form>
 
-                    <p style="text-align: center;color: white;"><strong>Copyright &copy; IT </strong>  CJ Feed & Livestock</p>
+                    <p style="text-align: center;color: #000;"><strong>Copyright &copy; IT </strong>  CJ Feed & Livestock</p>
 
                     <script>
                     function getMobileOperatingSystem() {
@@ -434,13 +439,33 @@
                     </script>
                     <script>
                         function getLocation() {
+                            const btn = document.getElementById("btn_check_in");
+                            btn.disabled = true;
+                            btn.innerHTML = 'Loading...';
+
                             if (navigator.geolocation) {
                                 navigator.geolocation.getCurrentPosition(showPosition, function(error) {
                                     alert("Gagal mendapatkan lokasi: " + error.message);
+                                    btn.disabled = false;
+                                    btn.innerHTML = 'CHECK IN';
                                 });
                             } else {
                                 alert("Browser tidak mendukung Geolocation.");
+                                btn.disabled = false;
+                                btn.innerHTML = 'CHECK IN';
                             }
+                        }
+
+                        function handleSubmitCheckIn(button) {
+                            const confirmCheck = confirm('Confirmation Check In ?');
+                            if (!confirmCheck) return false;
+
+                            // Disable tombol dan ganti teks saat proses berjalan
+                            button.disabled = true;
+                            button.innerHTML = 'Loading...';
+
+                            // Biarkan form tetap submit
+                            return true;
                         }
 
                         // Setelah lokasi didapatkan
@@ -498,15 +523,36 @@
                         }
                     </script>
                     <script>
-                        function getCurrentLocation() {
-                                if (navigator.geolocation) {
-                                    navigator.geolocation.getCurrentPosition(showPositionOut, function(error) {
+                        function getCurrentLocation(button) {
+                            if (navigator.geolocation) {
+                                // Disable tombol & tampilkan loading
+                                button.disabled = true;
+                                button.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Getting Location...';
+
+                                navigator.geolocation.getCurrentPosition(
+                                    showPositionOut,
+                                    function(error) {
                                         alert("Gagal mendapatkan lokasi: " + error.message);
-                                    });
-                                } else {
-                                    alert("Browser tidak mendukung Geolocation.");
-                                }
+                                        button.disabled = false;
+                                        button.innerHTML = 'CHECK OUT';
+                                    }
+                                );
+                            } else {
+                                alert("Browser tidak mendukung Geolocation.");
                             }
+                        }
+
+                        function handleCheckOutSubmit(button) {
+                            const confirmSubmit = confirm("Confirmation Check Out ?");
+                            if (!confirmSubmit) return false;
+
+                            // Nonaktifkan tombol dan ubah tampilannya
+                            button.disabled = true;
+                            button.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Submitting...';
+
+                            // Izinkan form tetap lanjut submit
+                            return true;
+                        }
 
                             function showPositionOut(position) {
                                 const lat = position.coords.latitude;

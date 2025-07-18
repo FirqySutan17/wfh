@@ -66,7 +66,7 @@
                               </center>
 
                               <h2 style="text-align: center; margin-bottom: 5px">SIGN IN</h2>
-                              <h2 style="text-align: center; font-size: 14px; font-weight: 700">DAILY SALES RPA</h2>
+                              <h2 style="text-align: center; font-size: 14px; font-weight: 700">ABSEN WFH</h2>
                               <form id="loginForm" method="POST" action="<?= route('login') ?>">
                                 <?php if ($this->session->flashdata('alert')): ?>
                                   <div class="invalid-feedback" role="alert" style="display: block !important;">
@@ -75,7 +75,7 @@
                                 <?php unset($_SESSION['alert']); endif ?>
                                 <div class="row mb-3">
                                   <div class="col-12">
-                                    <label for="company" class="col-form-label text-md-end">Company</label>
+                                    <label for="company" class="col-form-label text-md-end">company</label>
                                     <select class="form-control" name="plant" id="company">
                                       <option value="0112">HQ</option>
                                       <option value="0102">CJS</option>
@@ -91,8 +91,8 @@
 
                                 <div class="row mb-3">
                                   <div class="col-12">
-                                    <label for="employee_id" class="col-form-label text-md-end">User ID</label>
-                                    <input type="text" name="user_suja" id="user_id" required class="form-control pass" placeholder="Employee Number">
+                                    <label for="employee_id" class="col-form-label text-md-end">user id</label>
+                                    <input type="text" name="user_suja" id="user_id" required class="form-control pass" placeholder="employee number">
                                   </div>
                                 </div>
 
@@ -100,10 +100,10 @@
                                     <div class="col-12">
                                       <div class="row">
                                           <div class="col-12">
-                                              <label for="password" class="col-form-label text-md-end">Password</label>
+                                              <label for="password" class="col-form-label text-md-end">password</label>
                                           </div>
                                       </div>
-                                      <input type="password" name="password" required  class="form-control pass" placeholder="Birthdate (ddmmyyyy)">
+                                      <input type="password" name="password" required  class="form-control pass" placeholder="birthdate (ddmmyyyy)">
                                     </div>
                                 </div>
 
