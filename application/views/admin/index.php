@@ -240,7 +240,7 @@
                             <p class="text-danger"><?php echo $this->session->flashdata('message'); ?></p>
                             <p class="text-success"><?php echo $this->session->flashdata('sukses'); ?></p>
                         </form>
-                    <?php } else if ($current_hour >= 12 && $baris->IN_TIME !== '0000' && ($baris->OUT_TIME == '0000' || empty($baris->OUT_TIME))) { ?>
+                    <?php } else if ($baris->IN_TIME !== '0000' && ($baris->OUT_TIME == '0000' || empty($baris->OUT_TIME))) { ?>
                         <?php $IN_KOOR =  $baris->REG_IN_OS; ?>
 
                         <!-- TAMPILKAN KOORDINAT MASUK -->
