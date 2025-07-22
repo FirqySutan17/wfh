@@ -4,7 +4,7 @@
 <head>
 
   <meta charset="UTF-8">
-  <title>PT. Super Unggas Jaya</title>
+  <title>CJ Feed and Care Indonesia</title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="CJ Feed and Care">

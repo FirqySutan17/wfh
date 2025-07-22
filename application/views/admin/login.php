@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Absen WFH | Log in</title>
+    <title>CJ Feed and Care Indonesia</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <script src="<?= asset('/js/app.js') ?>" defer></script>
@@ -66,7 +66,7 @@
                               </center>
 
                               <h2 style="text-align: center; margin-bottom: 5px">SIGN IN</h2>
-                              <h2 style="text-align: center; font-size: 14px; font-weight: 700">ABSEN WFH</h2>
+                              <h2 style="text-align: center; font-size: 14px; font-weight: 700">ONLINE ATTENDANCE</h2>
                               <form id="loginForm" method="POST" action="<?= route('login') ?>">
                                 <?php if ($this->session->flashdata('alert')): ?>
                                   <div class="invalid-feedback" role="alert" style="display: block !important;">
